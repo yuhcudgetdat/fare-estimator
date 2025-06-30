@@ -1,1 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yuhcudgetdat Supermarket</title>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    text-align: center;
+    padding: 15px;
+    background-color: #111;
+    border-bottom: 1px solid gold;
+  }
+  .logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 5px;
+  }
+  header h1 {
+    font-family: 'Chewy', cursive;
+    color: gold;
+    margin: 5px 0;
+  }
+  .search-bar {
+    margin-top: 10px;
+  }
+  .search-input {
+    width: 80%;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+  }
+  .container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+  }
+  .product-card {
+    background-color: #111;
+    border: 1px solid gold;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  .product-title {
+    font-family: 'Chewy', cursive;
+    font-size: 24px;
+    color: gold;
+    margin-bottom: 10px;
+  }
+  .price, .size {
+    font-weight: 600;
+    margin: 5px 0;
+  }
+  .product-img {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  .accordion {
+    background-color: black;
+    color: gold;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    text-align: left;
+    border: 1px solid gold;
+    border-radius: 5px;
+    outline: none;
+    font-family: 'Chewy', cursive;
+    font-size: 18px;
+    transition: background 0.3s;
+  }
+  .accordion:hover {
+    background-color: gold;
+    color: black;
+  }
+  .panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-top: 5px;
+  }
+  .panel-content {
+    background-color: #111;
+    padding: 10px;
+    border: 1px solid gold;
+    border-radius: 5px;
+  }
+  ul.features {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 10px 0;
+  }
+  ul.features li {
+    margin: 4px 0;
+    font-family: 'Chewy', cursive;
+  }
+  .btn {
+    background-color: black;
+    color: gold;
+    border: 1px solid gold;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 5px 5px 5px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+  }
+  .btn:hover {
+    background-color: gold;
+    color: black;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 10%;
+    right: 10%;
+    top: 10%;
+    background-color: #222;
+    border: 2px solid gold;
+    border-radius: 10px;
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: white;
+  }
+  .modal h3 {
+    color: gold;
+    font-family: 'Chewy', cursive;
+  }
+  .modal input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 6px;
+    border-radius: 5px;
+    border: none;
+  }
+</style>
+</head>
+<body>
 
+<header>
+  <!-- Replace src with your real logo-->
+  <img src="images/WhatsApp Image 2025-04-09 at 10.12.23 PM (1).jpeg" alt=" Logo" class="logo">
+  <h1>Yuhcudgetdat Supermarket</h1>
+  <div class="search-bar">
+    <input type="text" class="search-input" placeholder="Search products..." onkeyup="filterProducts()">
+  </div>
+</header>
+
+<div class="container" id="productContainer">
+  <!-- Example Product Card -->
+  <div class="product-card">
+    <h2 class="product-title">Vanilla Cookies</h2>
+    <p class="price">Price: $10.99 TTD</p>
+    <p class="size">Size: 10g</p>
+    <img src="images/Screenshot 2025-05-18 3.08.25 PM.png" alt="Logo" style="display:block;margin:0 auto; max-width:290px;">
+    <button class="accordion">Product Description</button>
+    <div class="panel">
+      <div class="panel-content">
+        <p class="description">Product description loading...</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="openOptionModal('Vanilla Cookies)', 10.99)">Add to Cart</button>
+    <button class="btn" onclick="viewCart()">View Cart</button>
+    <button class="btn" onclick="checkout()">Checkout Now</button>
+  </div>
+  <div class="product-card">
+    <h2 class="product-title">Vanilla Cookies</h2>
+    <p class="price">Price: $10.99 TTD</p>
+    <p class="size">Size: 10g</p>
+    <img src="images/Screenshot 2025-05-16 5.03.58 PM.png" alt="Logo" style="display:block;margin:0 auto; max-width:290px;">
+
+    <button class="accordion">Product Description</button>
+    <div class="panel">
+      <div class="panel-content">
+        <p class="description">Product description loading...</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="openOptionModal('Vanilla Cookies)', 10.99)">Add to Cart</button>
+    <button class="btn" onclick="viewCart()">View Cart</button>
+    <button class="btn" onclick="checkout()">Checkout Now</button>
+  </div>
+</div>
+<div class="product-card">
+    <h2 class="product-title">Vanilla Cookies</h2>
+    <p class="price">Price: $10.99 TTD</p>
+    <p class="size">Size: 10g</p>
+    <img src="images/Screenshot 2025-05-02 2.57.27 PM.png" alt="Logo" style="display:block;margin:0 auto; max-width:290px;">
+
+    <button class="accordion">Product Description</button>
+    <div class="panel">
+      <div class="panel-content">
+        <p class="description">Product description loading...</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="openOptionModal('Vanilla Cookies)', 10.99)">Add to Cart</button>
+    <button class="btn" onclick="viewCart()">View Cart</button>
+    <button class="btn" onclick="checkout()">Checkout Now</button>
+  </div>
+  <div class="product-card">
+    <h2 class="product-title">Vanilla Cookies</h2>
+    <p class="price">Price: $10.99 TTD</p>
+    <p class="size">Size: 10g</p>
+    <img src="images/Screenshot 2025-05-18 3.37.18 PM.png" alt="Logo" style="display:block;margin:0 auto; max-width:290px;">
+
+    <button class="accordion">Product Description</button>
+    <div class="panel">
+      <div class="panel-content">
+        <p class="description">Product description loading...</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="openOptionModal('Vanilla Cookies)', 10.99)">Add to Cart</button>
+    <button class="btn" onclick="viewCart()">View Cart</button>
+    <button class="btn" onclick="checkout()">Checkout Now</button>
+  </div>
+  <div class="product-card">
+    <h2 class="product-title">Vanilla Cookies</h2>
+    <p class="price">Price: $10.99 TTD</p>
+    <p class="size">Size: 10g</p>
+    <img src="images/Screenshot 2025-05-02 2.54.26 PM.png" alt="Logo" style="display:block;margin:0 auto; max-width:290px;">
+
+    <button class="accordion">Product Description</button>
+    <div class="panel">
+      <div class="panel-content">
+        <p class="description">Product description loading...</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="openOptionModal('Vanilla Cookies)', 10.99)">Add to Cart</button>
+    <button class="btn" onclick="viewCart()">View Cart</button>
+    <button class="btn" onclick="checkout()">Checkout Now</button>
+  </div>
+  <div class="product-card">
+    <h2 class="product-title">Vanilla Cookies</h2>
+    <p class="price">Price: $10.99 TTD</p>
+    <p class="size">Size: 10g</p>
+    <img src="images/Screenshot 2025-05-18 3.08.25 PM.png" alt="Logo" style="display:block;margin:0 auto; max-width:290px;">
+
+    <button class="accordion">Product Description</button>
+    <div class="panel">
+      <div class="panel-content">
+        <p class="description">Product description loading...</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="openOptionModal('Vanilla Cookies)', 10.99)">Add to Cart</button>
+    <button class="btn" onclick="viewCart()">View Cart</button>
+    <button class="btn" onclick="checkout()">Checkout Now</button>
+  </div>
+  <div class="product-card">
+    <h2 class="product-title">Vanilla Cookies</h2>
+    <p class="price">Price: $10.99 TTD</p>
+    <p class="size">Size: 10g</p>
+    <img src="images/Screenshot 2025-05-16 5.03.58 PM.png" alt="Logo" style="display:block;margin:0 auto; max-width:290px;">
+
+    <button class="accordion">Product Description</button>
+    <div class="panel">
+      <div class="panel-content">
+        <p class="description">Product description loading...</p>
+      </div>
+    </div>
+
+    <button class="btn" onclick="openOptionModal('Vanilla Cookies)', 10.99)">Add to Cart</button>
+    <button class="btn" onclick="viewCart()">View Cart</button>
+    <button class="btn" onclick="checkout()">Checkout Now</button>
+  </div>
+
+
+<!-- Cart Modal -->
+<div id="cartModal" class="modal">
+  <h3>My Cart</h3>
+  <ul id="cartItems"></ul>
+  <h4 id="cartTotal"></h4>
+  <button class="btn" onclick="closeCart()">Close</button>
+</div>
+
+<!-- Options Modal -->
+<div id="optionModal" class="modal">
+  <h3 id="selectedProductName"></h3>
+  <label>Size:</label>
+  <input id="sizeInput" type="text" />
+  <label>Quantity:</label>
+  <input id="quantityInput" type="number" value="1" />
+  <label>Color:</label>
+  <input id="colorInput" type="text" />
+  <label>Pounds (lbs):</label>
+  <input id="poundsInput" type="number" />
+  <label>Weight:</label>
+  <input id="weightInput" type="text" />
+  <button class="btn" onclick="confirmAddToCart()">Confirm Add to Cart</button>
+  <button class="btn" onclick="closeOptionModal()">Cancel</button>
+</div>
+
+<script>
+  let cart = [];
+  let selectedProduct = {};
+
+  function openOptionModal(name, price) {
+    selectedProduct = { name, price };
+    document.getElementById("selectedProductName").innerText = name;
+    document.getElementById("optionModal").style.display = "block";
+  }
+
+  function closeOptionModal() {
+    document.getElementById("optionModal").style.display = "none";
+  }
+
+  function confirmAddToCart() {
+    const size = document.getElementById("sizeInput").value;
+    const quantity = parseInt(document.getElementById("quantityInput").value) || 1;
+    const color = document.getElementById("colorInput").value;
+    const pounds = document.getElementById("poundsInput").value;
+    const weight = document.getElementById("weightInput").value;
+    const total = quantity * selectedProduct.price;
+
+    cart.push({ ...selectedProduct, size, quantity, color, pounds, weight, total });
+    closeOptionModal();
+    alert("Added to cart!");
+  }
+
+  function viewCart() {
+    const list = document.getElementById("cartItems");
+    list.innerHTML = "";
+    let total = 0;
+    cart.forEach((item, i) => {
+      const li = document.createElement("li");
+      li.innerHTML = `${item.quantity} x ${item.name} - $${item.total.toFixed(2)} TTD<br>
+        ${item.size ? "Size: " + item.size + "<br>" : ""}
+        ${item.color ? "Color: " + item.color + "<br>" : ""}
+        ${item.pounds ? "Pounds: " + item.pounds + "<br>" : ""}
+        ${item.weight ? "Weight: " + item.weight + "<br>" : ""}
+        <button onclick="removeItem(${i})" style="background:red;color:white;border:none;border-radius:4px;padding:2px 6px;">Remove</button>`;
+      list.appendChild(li);
+      total += item.total;
+    });
+    document.getElementById("cartTotal").innerText = "Total: $" + total.toFixed(2) + " TTD";
+    document.getElementById("cartModal").style.display = "block";
+  }
+
+  function closeCart() {
+    document.getElementById("cartModal").style.display = "none";
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    viewCart();
+  }
+
+  function checkout() {
+    if (cart.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+    let message = "Hi Yuhcudgetdat Supermarket! I would like to order:\n\n";
+    let total = 0;
+    cart.forEach((item, i) => {
+      message += `${i + 1}. ${item.quantity} x ${item.name} - $${item.total.toFixed(2)} TTD\n`;
+      if (item.size) message += `   Size: ${item.size}\n`;
+      if (item.color) message += `   Color: ${item.color}\n`;
+      if (item.pounds) message += `   Pounds: ${item.pounds}\n`;
+      if (item.weight) message += `   Weight: ${item.weight}\n`;
+      message += `\n`;
+      total += item.total;
+    });
+    message += `Total: $${total.toFixed(2)} TTD`;
+    window.open("https://wa.me/18683568145?text=" + encodeURIComponent(message), "_blank");
+  }
+
+  // Accordion dropdown
+  document.addEventListener("DOMContentLoaded", () => {
+    const accordions = document.getElementsByClassName("accordion");
+    for (let acc of accordions) {
+      acc.addEventListener("click", function() {
+        this.classList.toggle("active");
+        const panel = this.nextElementSibling;
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null;
+        } else {
+          panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+      });
+    }
+  });
+
+  // Search function
+  function filterProducts() {
+    const input = document.querySelector('.search-input').value.toLowerCase();
+    const products = document.querySelectorAll('.product-card');
+    products.forEach(card => {
+      const title = card.querySelector('.product-title').innerText.toLowerCase();
+      card.style.display = title.includes(input) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
