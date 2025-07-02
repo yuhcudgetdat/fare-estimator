@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Carpet Rideshare & Logistics - Book Your Ride</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Chewy -->
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+    <!-- OpenLayers CSS for Map -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+    <style>
+        /* Custom Tailwind Configuration for colors and font */
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        :root {
+            --color-gold: #FFD700; /* Gold color */
+            --color-white: #FFFFFF; /* White color */
+            --color-black: #000000; /* Black color */
+        }
+
+        body {
+            font-family: 'Chewy', cursive; /* Apply Chewy font to the entire body */
+            background-color: var(--color-black); /* Black background */
+            color: var(--color-white); /* White text by default */
+        }
+
+        /* Custom styles for gold accents */
+        .text-gold {
+            color: var(--color-gold);
+        }
+        .bg-gold {
+            background-color: var(--color-gold);
+        }
+        .border-gold {
+            border-color: var(--color-gold);
+        }
+        .placeholder-gold::placeholder {
+            color: var(--color-gold);
+            opacity: 0.7; /* Slightly transparent for better readability */
+        }
+
+        /* Input field styling - Changed background to light gray and text to black for visibility */
+        .input-field {
+            @apply w-full p-3 rounded-lg bg-gray-200 text-black border border-gold focus:outline-none focus:ring-2 focus:ring-gold;
+        }
+        /* Ensure dropdown options are readable */
+        .input-field option {
+            color: black; /* Ensure option text is black */
+            background-color: white; /* Ensure option background is white */
+        }
+
+
+        /* Button styling */
+        .btn-primary {
+            @apply w-full py-3 rounded-lg bg-gold text-black font-bold text-lg hover:bg-yellow-500 transition duration-300 ease-in-out;
+        }
+
+        .btn-secondary {
+            /* Adjusted for better responsiveness on smaller screens */
+            @apply px-2 py-1 rounded-lg bg-gray-700 text-white text-xs sm:text-sm hover:bg-gray-600 transition duration-300 ease-in-out;
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #333;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-gold);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e0b800;
+        }
+
+        /* Map Styling - Directly on page */
+        #map {
+            height: 350px; /* Adjusted height for better visibility */
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 1.5rem; /* Space above map */
+            margin-bottom: 1.5rem; /* Space below map */
+            background-color: white; /* Ensure map background is visible */
+            border: 2px solid var(--color-gold); /* Gold border for the map */
+        }
+
+        /* Custom Alert/Message Box */
+        .message-box {
+            @apply fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 hidden;
+        }
+        .message-box-content {
+            @apply bg-gray-900 p-6 rounded-lg shadow-xl border border-gold max-w-sm w-full text-center;
+        }
+
+        /* Responsive adjustments for the main container */
+        @media (min-width: 640px) { /* sm breakpoint */
+            .main-container {
+                max-width: 48rem; /* Equivalent to max-w-xl */
+                padding: 2.5rem; /* Equivalent to p-10 */
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .main-container {
+                max-width: 56rem; /* Equivalent to max-w-2xl */
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
+    <div class="main-container w-full bg-gray-900 shadow-lg rounded-xl p-6 sm:p-8 space-y-6 border border-gold">
+        <header class="text-center mb-8">
+            <!-- Business Logo Option -->
+            <!-- Replace 'https://placehold.co/150x50/FFD700/000000?text=Your+Logo' with your actual logo image URL -->
+            <img src="https://placehold.co/150x50/FFD700/000000?text=Your+Logo" alt="Black Carpet Rideshare Logo" class="mx-auto mb-4 rounded-lg w-32 sm:w-40">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gold mb-2">Black Carpet</h1>
+            <h2 class="text-xl sm:text-2xl lg:text-3xl text-white">Rideshare & Logistics</h2>
+            <p class="text-sm sm:text-base text-gray-400 mt-2">Your Premium Transportation Partner</p>
+        </header>
+
+        <form id="bookingForm" class="space-y-4">
+            <div>
+                <label for="passengerName" class="block text-white text-sm sm:text-base font-medium mb-1">Your Name</label>
+                <input type="text" id="passengerName" name="passengerName" placeholder="Full Name" required class="input-field placeholder-gold">
+            </div>
+
+            <div>
+                <label for="whatsappNumber" class="block text-white text-sm sm:text-base font-medium mb-1">WhatsApp Number (e.g., 18681234567)</label>
+                <input type="tel" id="whatsappNumber" name="whatsappNumber" placeholder="WhatsApp Number" required class="input-field placeholder-gold">
+            </div>
+
+            <div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1">
+                    <label for="pickupLocation" class="block text-white text-sm sm:text-base font-medium mb-1 sm:mb-0">Pickup Location</label>
+                    <div class="flex space-x-2 w-full sm:w-auto mt-2 sm:mt-0">
+                        <!-- Removed "Select on Map" button here as map is always visible -->
+                        <button type="button" class="btn-secondary flex-grow sm:flex-none" onclick="resetLocation('pickup')">Reset Pickup</button>
+                    </div>
+                </div>
+                <!-- Datalist for location suggestions -->
+                <input type="text" id="pickupLocation" name="pickupLocation" placeholder="Click on map or enter address" required class="input-field placeholder-gold" list="trinidadLocations">
+            </div>
+
+            <div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1">
+                    <label for="destination" class="block text-white text-sm sm:text-base font-medium mb-1 sm:mb-0">Drop-off Location</label>
+                    <div class="flex space-x-2 w-full sm:w-auto mt-2 sm:mt-0">
+                        <!-- Removed "Select on Map" button here as map is always visible -->
+                        <button type="button" class="btn-secondary flex-grow sm:flex-none" onclick="resetLocation('destination')">Reset Drop-off</button>
+                    </div>
+                </div>
+                <!-- Datalist for location suggestions -->
+                <input type="text" id="destination" name="destination" placeholder="Click on map or enter address" required class="input-field placeholder-gold" list="trinidadLocations">
+            </div>
+
+            <!-- Datalist for Trinidad Locations -->
+            <datalist id="trinidadLocations">
+                <option value="Port of Spain">
+                <option value="San Fernando">
+                <option value="Arima">
+                <option value="Chaguanas">
+                <option value="Point Fortin">
+                <option value="Couva">
+                <option value="Diego Martin">
+                <option value="Tunapuna">
+                <option value="Sangre Grande">
+                <option value="Princes Town">
+                <option value="Siparia">
+                <option value="Fyzabad">
+                <option value="Penal">
+                <option value="Marabella">
+                <option value="Arouca">
+                <option value="Malabar">
+                <option value="Trincity">
+                <option value="St. Augustine">
+                <option value="Cunupia">
+                <option value="Debe">
+                <option value="La Romaine">
+                <option value="Gasparillo">
+                <option value="Rio Claro">
+                <option value="Mayaro">
+                <option value="Scarborough, Tobago">
+                <option value="Crown Point, Tobago">
+                <!-- Add more locations as needed -->
+            </datalist>
+
+            <!-- Map will be rendered here -->
+            <div id="map"></div>
+            <p class="text-center text-gray-400 text-xs sm:text-sm mt-2">Click on the map to set Pickup and Drop-off locations.</p>
+
+
+            <div>
+                <label for="rideType" class="block text-white text-sm sm:text-base font-medium mb-1">Ride Type</label>
+                <select id="rideType" name="rideType" class="input-field" onchange="toggleScheduleFields()" required>
+                    <option value="bookNow" class="bg-gray-800 text-white">Book Now</option>
+                    <option value="schedule" class="bg-gray-800 text-white">Schedule a Ride</option>
+                </select>
+            </div>
+
+            <div id="scheduleFields" class="space-y-4 hidden">
+                <div>
+                    <label for="rideDate" class="block text-white text-sm sm:text-base font-medium mb-1">Date</label>
+                    <input type="date" id="rideDate" name="rideDate" class="input-field placeholder-gold" required>
+                </div>
+                <div>
+                    <label for="rideTime" class="block text-white text-sm sm:text-base font-medium mb-1">Time</label>
+                    <input type="time" id="rideTime" name="rideTime" class="input-field placeholder-gold" required>
+                </div>
+            </div>
+
+            <div>
+                <label for="vehicleType" class="block text-white text-sm sm:text-base font-medium mb-1">Vehicle Type</label>
+                <select id="vehicleType" name="vehicleType" class="input-field" required>
+                    <option value="Standard" class="bg-gray-800 text-white">Standard (Sedan)</option>
+                    <option value="Luxury" class="bg-gray-800 text-white">Luxury (Premium Sedan)</option>
+                    <option value="SUV" class="bg-gray-800 text-white">SUV (Larger Vehicle)</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="numPassengers" class="block text-white text-sm sm:text-base font-medium mb-1">Number of Passengers</label>
+                <input type="number" id="numPassengers" name="numPassengers" min="1" value="1" required class="input-field placeholder-gold">
+            </div>
+
+            <!-- Fare Estimator Inputs -->
+            <div>
+                <label for="numBags" class="block text-white text-sm sm:text-base font-medium mb-1">Number of Bags (0-1 bag: $5, 2+ bags: $10)</label>
+                <input type="number" id="numBags" name="numBags" min="0" value="0" class="input-field placeholder-gold" required>
+            </div>
+            <div>
+                <label for="numStops" class="block text-white text-sm sm:text-base font-medium mb-1">Number of Extra Stops ($10/stop)</label>
+                <input type="number" id="numStops" name="numStops" min="0" value="0" class="input-field placeholder-gold" required>
+            </div>
+
+            <button type="button" class="btn-primary" onclick="calculateFare()">Calculate Fare</button>
+            <div id="fareEstimate" class="text-center text-xl sm:text-2xl font-bold text-gold mt-4 p-3 border border-gold rounded-lg hidden">
+                <!-- Fare will be displayed here -->
+            </div>
+            <p id="fareDisclaimer" class="text-center text-gray-400 text-xs sm:text-sm mt-2 hidden">
+                *Distance charge calculated based on map coordinates.
+            </p>
+
+            <div>
+                <label for="specialRequests" class="block text-white text-sm sm:text-base font-medium mb-1">Special Requests (Optional)</label>
+                <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="e.g., Child seat, extra luggage, stopovers" class="input-field placeholder-gold"></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Confirm Ride</button>
+        </form>
+
+        <!-- Receipt Modal/Section -->
+        <div id="receiptSection" class="hidden mt-8 p-6 bg-gray-800 rounded-lg border border-gold">
+            <h3 class="text-xl sm:text-2xl font-bold text-gold mb-4 text-center">Ride Confirmed!</h3>
+            <div id="receiptDetails" class="text-white text-xs sm:text-sm leading-relaxed mb-6 whitespace-pre-wrap">
+                <!-- Receipt details will be inserted here by JavaScript -->
+            </div>
+            <!-- Waze Link Display (for pickup only, as requested in previous iterations) -->
+            <div id="wazeLinkContainer" class="text-center mb-6 hidden">
+                <p class="text-gray-400 text-xs sm:text-sm mb-2">Driver can use this link to find the pickup location:</p>
+                <a id="wazeLink" href="#" target="_blank" class="text-gold hover:underline font-bold text-base sm:text-lg">Open Pickup Location in Waze</a>
+            </div>
+            <button id="whatsappReceiptBtn" class="btn-primary mb-4">Get Receipt via WhatsApp</button>
+            <p class="text-center text-gray-400 text-xs sm:text-sm">A chat will open with our business number. You can send the pre-filled message.</p>
+            <p class="text-center text-gray-400 text-xs sm:text-sm mt-2">You can also copy the receipt details above and send them to yourself.</p>
+        </div>
+
+        <!-- Custom Alert/Message Box -->
+        <div id="messageBox" class="message-box">
+            <div class="message-box-content">
+                <h4 id="messageBoxTitle" class="text-xl sm:text-2xl font-bold text-gold mb-4"></h4>
+                <p id="messageBoxContent" class="text-white text-sm sm:text-base mb-6"></p>
+                <button id="messageBoxCloseBtn" class="btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- OpenLayers JS for Map -->
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.js"></script>
+    <script>
+        // OpenLayers imports (these are typically handled by build tools, but for a single HTML file,
+        // we rely on the global `ol` object provided by the CDN script)
+        const { Map, View } = ol;
+        const { Tile: TileLayer } = ol.layer;
+        const { OSM } = ol.source;
+        const { Feature } = ol;
+        const { Point } = ol.geom;
+        const { Vector: VectorLayer } = ol.layer;
+        const { Vector: VectorSource } = ol.source;
+        const { Style, Icon, Fill, Stroke, Circle: CircleStyle } = ol.style;
+        const { fromLonLat, toLonLat } = ol.proj;
+        const { Translate } = ol.interaction;
+        const { Collection } = ol; // For draggable features
+
+        let map; // The main OpenLayers map instance
+        let vectorSource; // Source for all markers on the map
+        let pickupFeature = null; // OpenLayers Feature for pickup marker
+        let dropoffFeature = null; // OpenLayers Feature for drop-off marker
+        let currentSelectionType = 'pickup'; // To alternate between pickup and drop-off selection
+
+        // Trinidad coordinates for initial map view
+        const TRINIDAD_LAT = 10.45;
+        const TRINIDAD_LON = -61.25;
+        const INITIAL_ZOOM = 9;
+
+        // Function to show/hide schedule-specific fields
+        function toggleScheduleFields() {
+            const rideType = document.getElementById('rideType').value;
+            const scheduleFields = document.getElementById('scheduleFields');
+            const rideDateInput = document.getElementById('rideDate');
+            const rideTimeInput = document.getElementById('rideTime');
+
+            if (rideType === 'schedule') {
+                scheduleFields.classList.remove('hidden');
+                rideDateInput.setAttribute('required', 'true');
+                rideTimeInput.setAttribute('required', 'true');
+            } else {
+                scheduleFields.classList.add('hidden');
+                rideDateInput.removeAttribute('required');
+                rideTimeInput.removeAttribute('required');
+            }
+        }
+
+        // Function to display a custom message box instead of alert()
+        function showMessageBox(title, message) {
+            const messageBox = document.getElementById('messageBox');
+            document.getElementById('messageBoxTitle').textContent = title;
+            document.getElementById('messageBoxContent').textContent = message;
+            messageBox.classList.remove('hidden');
+        }
+
+        // Event listener for closing the custom message box
+        document.getElementById('messageBoxCloseBtn').addEventListener('click', () => {
+            document.getElementById('messageBox').classList.add('hidden');
+        });
+
+        // Reset Location Function - Unified and working
+        function resetLocation(fieldId) {
+            const locationInput = document.getElementById(fieldId + 'Location');
+            locationInput.value = '';
+            delete locationInput.dataset.lat;
+            delete locationInput.dataset.lng;
+
+            if (fieldId === 'pickup' && pickupFeature) {
+                vectorSource.removeFeature(pickupFeature);
+                pickupFeature = null;
+            } else if (fieldId === 'destination' && dropoffFeature) {
+                vectorSource.removeFeature(dropoffFeature);
+                dropoffFeature = null;
+            }
+            // Reset the current selection type to pickup if dropoff was reset and pickup is null
+            if (fieldId === 'destination' && !pickupFeature) {
+                currentSelectionType = 'pickup';
+            }
+            // If pickup is reset, always set selection type to pickup
+            if (fieldId === 'pickup') {
+                currentSelectionType = 'pickup';
+            }
+        }
+
+        // Function to calculate distance between two LatLng points (Haversine formula)
+        function getDistanceKm(a, b) {
+            const R = 6371; // Radius of Earth in kilometers
+            const dLat = (b.lat - a.lat) * Math.PI / 180;
+            const dLon = (b.lng - a.lng) * Math.PI / 180;
+            const aa = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1 - aa));
+            return R * c;
+        }
+
+        // Fare Estimator Function
+        function calculateFare() {
+            const pickupInput = document.getElementById('pickupLocation');
+            const destinationInput = document.getElementById('destination');
+            const numBags = parseInt(document.getElementById('numBags').value) || 0;
+            const numStops = parseInt(document.getElementById('numStops').value) || 0;
+
+            if (!pickupInput.value || !destinationInput.value) {
+                showMessageBox('Missing Information', 'Please enter both Pickup and Destination to estimate fare.');
+                return;
+            }
+
+            // Fare Breakdown Calculations
+            const baseFare = 20; // TTD $20 Fixed amount
+            let distanceCharge = 0; // TTD $5 per km
+
+            // Calculate distance if coordinates are available
+            const pickupLat = parseFloat(pickupInput.dataset.lat);
+            const pickupLng = parseFloat(pickupInput.dataset.lng);
+            const destinationLat = parseFloat(destinationInput.dataset.lat);
+            const destinationLng = parseFloat(destinationInput.dataset.lng);
+
+            if (!isNaN(pickupLat) && !isNaN(pickupLng) && !isNaN(destinationLat) && !isNaN(destinationLng)) {
+                const pickupCoords = { lat: pickupLat, lng: pickupLng };
+                const destinationCoords = { lat: destinationLat, lng: destinationLng };
+                const distanceKm = getDistanceKm(pickupCoords, destinationCoords);
+                distanceCharge = distanceKm * 5; // TTD $5 per km
+                document.getElementById('fareDisclaimer').textContent = `*Fare estimate includes distance charge (${distanceKm.toFixed(2)} km).`;
+            } else {
+                document.getElementById('fareDisclaimer').textContent = `*Distance charge not calculated (use map to pin locations for accurate distance).`;
+            }
+
+            let extraStopsCost = numStops * 10; // TTD $10 per extra stop
+
+            let extraLuggageCost = 0;
+            if (numBags === 1) {
+                extraLuggageCost = 5; // TTD $5 for 1 bag
+            } else if (numBags >= 2) {
+                extraLuggageCost = 10; // TTD $10 for 2+ bags
+            }
+
+            // Total Estimated Fare
+            let estimatedFare = baseFare + distanceCharge + extraStopsCost + extraLuggageCost;
+
+            const fareEstimateElement = document.getElementById('fareEstimate');
+            fareEstimateElement.innerHTML = `
+                <p>Estimated Fare: TTD $${estimatedFare.toFixed(2)}</p>
+                <p class="text-sm text-gray-300 mt-2">
+                    Base Fare: TTD $${baseFare.toFixed(2)}<br>
+                    Distance Charge: TTD $${distanceCharge.toFixed(2)}<br>
+                    Extra Stops: TTD $${extraStopsCost.toFixed(2)}<br>
+                    Extra Luggage: TTD $${extraLuggageCost.toFixed(2)}
+                </p>
+            `;
+            fareEstimateElement.classList.remove('hidden');
+            document.getElementById('fareDisclaimer').classList.remove('hidden');
+        }
+
+        // OpenLayers Map Initialization (on page load)
+        function initOpenLayersMap() {
+            vectorSource = new VectorSource();
+            const vectorLayer = new VectorLayer({
+                source: vectorSource,
+                style: function(feature) {
+                    // Custom style for markers based on their type (pickup/dropoff)
+                    const type = feature.get('type');
+                    let color = 'gold'; // Default for pickup
+                    if (type === 'dropoff') {
+                        color = 'red'; // Different color for dropoff
+                    }
+                    return new Style({
+                        image: new Icon({
+                            anchor: [0.5, 1], // Anchor at the bottom center of the icon
+                            src: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${encodeURIComponent(color)}"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>`,
+                            scale: 1.5
+                        }),
+                    });
+                }
+            });
+
+            map = new Map({
+                target: 'map',
+                layers: [
+                    new TileLayer({
+                        source: new OSM(),
+                    }),
+                    vectorLayer,
+                ],
+                view: new View({
+                    center: fromLonLat([TRINIDAD_LON, TRINIDAD_LAT]),
+                    zoom: INITIAL_ZOOM,
+                }),
+            });
+
+            // Handle map click to set pickup/drop-off locations
+            map.on('click', async function(evt) {
+                const coords = toLonLat(evt.coordinate); // [lon, lat]
+                const lat = coords[1];
+                const lon = coords[0];
+                const address = await reverseGeocode(lat, lon);
+
+                if (currentSelectionType === 'pickup') {
+                    if (pickupFeature) {
+                        vectorSource.removeFeature(pickupFeature);
+                    }
+                    pickupFeature = new Feature({
+                        geometry: new Point(evt.coordinate),
+                        type: 'pickup'
+                    });
+                    vectorSource.addFeature(pickupFeature);
+                    document.getElementById('pickupLocation').value = address;
+                    document.getElementById('pickupLocation').dataset.lat = lat;
+                    document.getElementById('pickupLocation').dataset.lng = lon;
+                    currentSelectionType = 'destination'; // Switch to drop-off for next click
+                    showMessageBox('Pickup Set!', 'Now click on the map to set your Drop-off Location.');
+                } else { // currentSelectionType === 'destination'
+                    if (dropoffFeature) {
+                        vectorSource.removeFeature(dropoffFeature);
+                    }
+                    dropoffFeature = new Feature({
+                        geometry: new Point(evt.coordinate),
+                        type: 'dropoff'
+                    });
+                    vectorSource.addFeature(dropoffFeature);
+                    document.getElementById('destination').value = address;
+                    document.getElementById('destination').dataset.lat = lat;
+                    document.getElementById('destination').dataset.lng = lon;
+                    currentSelectionType = 'pickup'; // Switch back to pickup for next click
+                    showMessageBox('Drop-off Set!', 'Both locations are set. You can now calculate fare or book your ride.');
+                }
+            });
+
+            // Make markers draggable
+            const translateInteraction = new Translate({
+                features: new Collection(), // This collection will be populated dynamically
+            });
+            map.addInteraction(translateInteraction);
+
+            translateInteraction.on('translateend', async function(evt) {
+                const feature = evt.features.array_[0]; // Get the dragged feature
+                const coords = toLonLat(feature.getGeometry().getCoordinates());
+                const lat = coords[1];
+                const lon = coords[0];
+                const address = await reverseGeocode(lat, lon);
+
+                if (feature === pickupFeature) {
+                    document.getElementById('pickupLocation').value = address;
+                    document.getElementById('pickupLocation').dataset.lat = lat;
+                    document.getElementById('pickupLocation').dataset.lng = lon;
+                } else if (feature === dropoffFeature) {
+                    document.getElementById('destination').value = address;
+                    document.getElementById('destination').dataset.lat = lat;
+                    document.getElementById('destination').dataset.lng = lon;
+                }
+            });
+
+            // Add features to the translate interaction's collection when they are added to the source
+            vectorSource.on('addfeature', function(event) {
+                translateInteraction.getFeatures().push(event.feature);
+            });
+            // Remove features from the translate interaction's collection when they are removed from the source
+            vectorSource.on('removefeature', function(event) {
+                translateInteraction.getFeatures().remove(event.feature);
+            });
+
+        }
+
+        // Reverse Geocoding function using Nominatim
+        async function reverseGeocode(lat, lon) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'BlackCarpetRideshareApp/1.0 (your-email@example.com)' // Required by Nominatim
+                    }
+                });
+                const data = await response.json();
+                return data.display_name || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            } catch (error) {
+                console.error('Error during reverse geocoding:', error);
+                return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            }
+        }
+
+        // Initialize map on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initOpenLayersMap();
+            toggleScheduleFields(); // Ensure schedule fields are hidden/shown correctly on load
+        });
+
+        // Event listener for form submission
+        document.getElementById('bookingForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Basic validation for map-selected locations
+            if (!document.getElementById('pickupLocation').dataset.lat || !document.getElementById('destination').dataset.lat) {
+                showMessageBox('Missing Locations', 'Please select both Pickup and Drop-off locations on the map.');
+                return;
+            }
+
+            // Recalculate fare to ensure latest values are used
+            const baseFare = 20;
+            let distanceCharge = 0;
+            const numBags = parseInt(document.getElementById('numBags').value) || 0;
+            const numStops = parseInt(document.getElementById('numStops').value) || 0;
+            let extraStopsCost = numStops * 10;
+
+            // Calculate distance if coordinates are available for both pickup and destination
+            const pickupInput = document.getElementById('pickupLocation');
+            const destinationInput = document.getElementById('destination');
+            const pickupLat = parseFloat(pickupInput.dataset.lat);
+            const pickupLng = parseFloat(pickupInput.dataset.lng);
+            const destinationLat = parseFloat(destinationInput.dataset.lat);
+            const destinationLng = parseFloat(destinationInput.dataset.lng);
+
+            if (!isNaN(pickupLat) && !isNaN(pickupLng) && !isNaN(destinationLat) && !isNaN(destinationLng)) {
+                const pickupCoords = { lat: pickupLat, lng: pickupLng };
+                const destinationCoords = { lat: destinationLat, lng: destinationLng };
+                const distanceKm = getDistanceKm(pickupCoords, destinationCoords);
+                distanceCharge = distanceKm * 5; // TTD $5 per km
+            }
+
+            let extraLuggageCost = 0;
+            if (numBags === 1) {
+                extraLuggageCost = 5;
+            } else if (numBags >= 2) {
+                extraLuggageCost = 10;
+            }
+            let estimatedFare = baseFare + distanceCharge + extraStopsCost + extraLuggageCost;
+
+
+            // Generate receipt details with better spacing and full fare breakdown
+            let receiptText = `Thank you for booking with Black Carpet Rideshare & Logistics!\n\n`;
+            receiptText += `--- RIDE DETAILS ---\n\n`;
+            receiptText += `Type: ${data.rideType === 'bookNow' ? 'Book Now' : 'Scheduled Ride'}\n`;
+            receiptText += `Pickup: ${data.pickupLocation}\n`;
+            // Add Waze link for pickup to WhatsApp message
+            if (!isNaN(pickupLat) && !isNaN(pickupLng)) {
+                receiptText += `Waze Pickup: https://waze.com/ul?ll=${pickupLat},${pickupLng}&navigate=yes\n`;
+            } else {
+                receiptText += `Waze Pickup: (No exact coordinates, please use address)\n`;
+            }
+            receiptText += `Destination: ${data.destination}\n\n`;
+            // Add Waze link for destination to WhatsApp message
+            if (!isNaN(destinationLat) && !isNaN(destinationLng)) {
+                receiptText += `Waze Destination: https://waze.com/ul?ll=${destinationLat},${destinationLng}&navigate=yes\n\n`;
+            } else {
+                receiptText += `Waze Destination: (No exact coordinates, please use address)\n\n`;
+            }
+
+            if (data.rideType === 'schedule') {
+                receiptText += `Date: ${data.rideDate}\n`;
+                receiptText += `Time: ${data.rideTime}\n\n`;
+            }
+            receiptText += `Passenger: ${data.passengerName}\n`;
+            receiptText += `WhatsApp: ${data.whatsappNumber}\n\n`;
+            receiptText += `Vehicle: ${data.vehicleType}\n`;
+            receiptText += `Passengers: ${data.numPassengers}\n\n`;
+
+            // Add detailed fare breakdown to receipt
+            receiptText += `--- FARE BREAKDOWN ---\n\n`;
+            receiptText += `✅ Base fare: TTD $${baseFare.toFixed(2)}\n`;
+            receiptText += `✅ Distance charge: TTD $${distanceCharge.toFixed(2)}\n`;
+            receiptText += `✅ Extra stops: TTD $${extraStopsCost.toFixed(2)} (${numStops} stop(s))\n`;
+            receiptText += `✅ Extra luggage: TTD $${extraLuggageCost.toFixed(2)} (${numBags} bag(s))\n\n`;
+            receiptText += `TOTAL ESTIMATED FARE: TTD $${estimatedFare.toFixed(2)}\n\n`;
+
+            receiptText += `--- NOTE ---\n`;
+            receiptText += `Number of passengers does not change the fare.\n`;
+            receiptText += `Passenger gender mix, payment method, date/time — also do not affect fare.\n`;
+            receiptText += `Fare is based only on: base fare + distance + extra stops + luggage.\n\n`;
+
+
+            if (data.specialRequests) {
+                receiptText += `Special Requests: ${data.specialRequests}\n\n`;
+            }
+            receiptText += `We look forward to serving you!\n`;
+            receiptText += `\nBlack Carpet Team`;
+
+            // Display receipt section
+            document.getElementById('receiptDetails').textContent = receiptText;
+            document.getElementById('receiptSection').classList.remove('hidden');
+            form.classList.add('hidden'); // Hide the form
+
+            // Generate and display Waze link for pickup (for customer's reference on page)
+            const wazeLinkElement = document.getElementById('wazeLink');
+            const wazeLinkContainer = document.getElementById('wazeLinkContainer');
+            // This link is for the customer's page view, so it only shows pickup
+            if (!isNaN(pickupLat) && !isNaN(pickupLng)) {
+                const wazeUrl = `https://waze.com/ul?ll=${pickupLat},${pickupLng}&navigate=yes`;
+                wazeLinkElement.href = wazeUrl;
+                wazeLinkElement.textContent = "Open Pickup Location in Waze";
+                wazeLinkContainer.classList.remove('hidden');
+            } else {
+                wazeLinkContainer.classList.add('hidden'); // Hide if no coordinates
+            }
+
+            // Set up WhatsApp button
+            const businessWhatsAppNumber = '18683568145';
+            const encodedReceiptText = encodeURIComponent(receiptText);
+            const whatsappLink = `https://wa.me/${businessWhatsAppNumber}?text=${encodedReceiptText}`;
+
+            document.getElementById('whatsappReceiptBtn').onclick = function() {
+                window.open(whatsappLink, '_blank');
+            };
+        });
+    </script>
+</body>
+</html>
